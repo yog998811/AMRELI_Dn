@@ -1,0 +1,11 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Amreli Dn",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Amreli",
+  "start_url": "/",
+  "theme_color": "#ffffff"
+}
