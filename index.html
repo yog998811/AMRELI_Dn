@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Amreli HO Wireless Scanner</title>
+    <style>
+        :root {
+            --post-red: #c62828;
+            --post-dark: #1b383d;
+            --accent-green: #00897b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d1b1e;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        /* Top Header */
+        .top-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 12px;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+        .brand-box { display: flex; align-items: center; gap: 8px; }
+        .brand-text h1 { font-size: 16px; color: #c62828; font-weight: 800; line-height: 1.1; }
+        .brand-text p { font-size: 11px; color: #00897b; font-weight: 600; }
+
+        .nav-icons { display: flex; align-items: center; gap: 12px; }
+        .signal-icon-svg { width: 22px; height: 22px; fill: #ff5252; transition: fill 0.3s; }
+        .signal-connected { fill: #00e676 !important; }
+        .nav-icon { font-size: 18px; cursor: pointer; color: #424242; }
+        .lock-active { color: #d50000 !important; }
+
+        /* Main Compact Content Zone */
+        .content-body {
+            padding: 4px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-grow: 1;
+            justify-content: flex-start;
+        }
+
+        .status-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e8f5e9;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #2e7d32;
+        }
+
+        /* Dual Input Box (PIN + Route Index) */
+        .pin-card {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            background: #f9fbe7;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #dce775;
+        }
+        .pin-input {
+            flex: 2;
+            padding: 4px;
+            border: 1.5px solid #00897b;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            letter-spacing: 1px;
+        }
+        .route-input {
+            flex: 1;
+            max-width: 65px;
+            padding: 4px;
+            border: 1.5px solid #ff9800;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 800;
+            outline: none;
+            color: #e65100;
+            background: #fff;
+        }
+        .btn-submit {
+            background: #00897b;
+            color: #fff;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .counter-strip {
+            background: #eceff1;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #37474f;
+        }
+        .counter-strip span.val { color: #00897b; font-weight: 800; }
+
+        /* Result Bar */
+        .result-bar {
+            background: #ffebee;
+            color: var(--post-red);
+            font-weight: 800;
+            padding: 3px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            letter-spacing: 1px;
+            border: 1px dashed var(--post-red);
+        }
+
+        /* Camera Box - Fast 290px Setup */
+        #reader-wrapper {
+            position: relative;
+            width: 100%;
+            height: 270px;
+            border: 2px solid #00897b;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .camera-title-badge {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.92);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--post-dark);
+            z-index: 5;
+            border: 1px solid #00897b;
+        }
+        #reader { width: 100% !important; height: 100% !important; }
+        #reader video { width: 100% !important; height: 100% !important; object-fit: cover !important; transition: filter 0.2s ease; }
+        #qr-shaded-region { border-color: rgba(0, 230, 118, 0.9) !important; }
+
+        /* High Level Scanning Visual Feedback */
+        .high-level-active #reader video {
+            filter: contrast(1.45) brightness(0.85) !important;
+        }
+
+        /* Action Controls */
+        .action-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            margin-top: 80px;
+        }
+
+        /* 3D Tiranga Button */
+        .tiranga-scan-btn {
+            width: 100%;
+            max-width: 360px;
+            height: 50px;
+            background: linear-gradient(
+                180deg, 
+                #ff7722 0%, 
+                #ff9933 22%, 
+                #ffffff 48%, 
+                #ffffff 54%, 
+                #138808 80%, 
+                #0b6605 100%
+            );
+            color: #111111;
+            font-family: 'Arial Black', -apple-system, sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            border-radius: 30px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            border-top: 2px solid #ffcc99;
+            border-left: 2px solid #ffb380;
+            border-right: 2px solid #084c03;
+            border-bottom: 4px solid #063802;
+            box-shadow: 
+                0 4px 10px rgba(0, 0, 0, 0.35), 
+                inset 0 2px 2px rgba(255, 255, 255, 0.8),
+                inset 0 -2px 3px rgba(0, 0, 0, 0.4);
+            transform: translateY(0);
+            transition: all 0.1s ease-in-out;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+        }
+        .tiranga-scan-btn:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .tiranga-scan-btn.ready {
+            animation: pulse-3d 0.6s infinite alternate;
+        }
+        @keyframes pulse-3d {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.15) contrast(1.05); }
+        }
+
+        /* Stop/Start Button */
+        .btn-toggle-camera {
+            width: 75%;
+            max-width: 260px;
+            border: 2px solid #ff5252;
+            background: #fff5f5;
+            color: #d32f2f;
+            padding: 6px 14px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn-toggle-camera.running {
+            background: #ffebee;
+            border-color: #d32f2f;
+        }
+
+        /* Footer */
+        .app-footer {
+            background: #f1f3f4;
+            color: #37474f;
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            border-top: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        /* Slide Menu */
+        .drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 99; display: none; }
+        .drawer-menu { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: #1c3b40; color: #fff; z-index: 100; padding: 20px 14px; transition: 0.3s ease-in-out; display: flex; flex-direction: column; gap: 14px; }
+        .drawer-menu.open { right: 0; }
+        .drawer-header { font-size: 14px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 6px; color: #a7ffeb; }
+        .menu-card { background: #fff; color: #263238; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .segmented-ctrl { display: flex; background: #eceff1; padding: 2px; border-radius: 20px; }
+        .seg-btn { flex: 1; padding: 5px 0; text-align: center; border: none; background: transparent; font-size: 12px; font-weight: 700; border-radius: 18px; cursor: pointer; color: #546e7a; }
+        .seg-btn.active { background: #00c853; color: #fff; }
+        .switch-row { display: flex; justify-content: space-between; align-items: center; background: #ffecb3; padding: 8px 10px; border-radius: 6px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #b0bec5; transition: .3s; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #00c853; }
+        input:checked + .slider:before { transform: translateX(18px); }
+        .menu-btn-item { background: #ffecb3; color: #3e2723; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .dev-info-box { background: #ffecb3; color: #3e2723; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.4; }
+        .dev-info-box a { color: #00796b; font-weight: 700; text-decoration: underline; }
+
+        /* Modal Table & Keyboard Modal */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 120; display: none; align-items: center; justify-content: center; padding: 14px; }
+        .modal-box { background: #fff; width: 100%; max-width: 380px; border-radius: 10px; overflow: hidden; max-height: 80vh; display: flex; flex-direction: column; }
+        .modal-header { background: #eceff1; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; }
+        .modal-body { overflow-y: auto; padding: 8px; }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .log-table th { background: #f5f5f5; padding: 6px; text-align: left; }
+        .log-table td { padding: 6px; border-bottom: 1px solid #eee; }
+        .btn-resend { background: #00796b; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; cursor: pointer; }
+
+        /* WhatsApp Style Send Button & Keyboard Box */
+        .keyboard-input-box {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            border: 2px solid #00897b;
+            border-radius: 8px;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 2px;
+            margin: 10px 0 14px 0;
+            outline: none;
+        }
+        .btn-whatsapp-send {
+            background: #25d366;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            width: 100%;
+        }
+        .btn-whatsapp-send:active {
+            background: #1da851;
+            transform: scale(0.98);
+        }
+
+        .disabled-ui { pointer-events: none !important; opacity: 0.45; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- Top Header -->
+    <div class="top-navbar">
+        <div class="brand-box">
+            <svg style="width: 38px; height: 32px; flex-shrink: 0;" viewBox="0 0 100 80">
+                <rect width="100" height="65" y="10" fill="#c62828" rx="3"/>
+                <path d="M-5 50 Q 30 75 75 35 Q 50 55 10 40 Z" fill="#ffd54f"/>
+                <path d="M5 45 Q 40 68 85 25 Q 60 48 20 35 Z" fill="#ffd54f"/>
+                <path d="M15 40 Q 50 60 95 15 Q 70 40 30 30 Z" fill="#ffd54f"/>
+            </svg>
+            <div class="brand-text">
+                <h1>AMRELI HO</h1>
+                <p>(Wireless Scanning)</p>
+            </div>
+        </div>
+
+        <div class="nav-icons">
+            <svg id="signal-icon" class="signal-icon-svg" viewBox="0 0 24 24">
+                <path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.23C2.89 16.48 2 14.34 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10c0 2.34-.89 4.48-2.35 6.23l-.62-.62C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9zm0 4c-2.76 0-5 2.24-5 5 0 1.34.53 2.56 1.39 3.46l.71-.71C8.42 14.07 8 13.08 8 12c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.08-.42 2.07-1.1 2.75l.71.71c.86-.9 1.39-2.12 1.39-3.46 0-2.76-2.24-5-5-5zm0 8c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>
+            </svg>
+            <span class="nav-icon" id="lock-icon" onclick="toggleScreenLock()" title="Touch Lock">🔓</span>
+            <span class="nav-icon" onclick="openDrawer()" title="Settings">☰</span>
+        </div>
+    </div>
+
+    <!-- Main Content Zone -->
+    <div class="content-body" id="main-content-zone">
+
+        <div class="status-strip">
+            <span>● Internet Status</span>
+            <span id="net-status-text" style="color: #c62828;">Waiting for PIN</span>
+        </div>
+
+        <!-- PIN + PC Route Direct Box -->
+        <div class="pin-card" id="ui-pin-box">
+            <input type="text" id="pc-pin" class="pin-input" placeholder="PIN" maxlength="6">
+            <input type="number" id="pc-route" class="route-input" placeholder="RT (1-4)" min="1" max="4" value="1">
+            <button class="btn-submit" onclick="manualConnect()">Submit</button>
+        </div>
+
+        <div class="counter-strip">
+            <span>🖥️ Connection:</span>
+            <span class="val" id="counter-name">...</span>
+        </div>
+
+        <!-- 1. Universal Result Bar -->
+        <div class="result-bar" id="article-result">Barcode Result</div>
+
+        <!-- 2. Camera Card (Original Container Structure) -->
+        <div id="reader-wrapper">
+            <div class="camera-title-badge" id="camera-badge">Camera Standby</div>
+            <div id="reader"></div>
+        </div>
+
+        <!-- 3. Action Controls -->
+        <div class="action-container">
+            <!-- 3D Tiranga Button -->
+            <button class="tiranga-scan-btn" id="btn-manual-scan" onclick="triggerManualScan()">
+                <span style="font-size: 20px;">👆</span> SCAN NOW
+            </button>
+            <!-- Sleek Button -->
+            <button class="btn-toggle-camera" id="btn-camera-toggle" onclick="handleCameraToggle()">
+                ▶ Start Scanning
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Footer Bar -->
+    <div class="app-footer">
+        <span>India Post , Dak Sewa - Jan Sewa</span>
+        <svg style="width: 22px; height: 16px;" viewBox="0 0 100 80">
+            <rect width="100" height="65" y="10" fill="#c62828" rx="2"/>
+            <path d="M-5 50 Q 30 75 75 35 Q 50 55 10 40 Z" fill="#ffd54f"/>
+            <path d="M5 45 Q 40 68 85 25 Q 60 48 20 35 Z" fill="#ffd54f"/>
+        </svg>
+    </div>
+
+</div>
+
+<!-- Drawer / Slide Menu -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer-menu" id="drawer-menu">
+    <div class="drawer-header">APP SETTINGS & MODES</div>
+
+    <div class="menu-card">
+        <span style="font-size: 12px; font-weight: 700; color: #37474f;">Scanning Trigger</span>
+        <div class="segmented-ctrl">
+            <button class="seg-btn active" id="seg-auto" onclick="setMode('AUTO')">Auto</button>
+            <button class="seg-btn" id="seg-manual" onclick="setMode('MANUAL')">Manual</button>
+        </div>
+    </div>
+
+    <!-- High Level Scanning Toggle -->
+    <div class="switch-row" style="background: #e1f5fe; border: 1px solid #81d4fa;">
+        <span style="font-size: 12px; font-weight: 700; color: #01579b;">⚡ High Level Scanning</span>
+        <label class="switch">
+            <input type="checkbox" id="high-level-checkbox" onchange="toggleHighLevelScanning(this.checked)">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="switch-row">
+        <span style="font-size: 12px; font-weight: 700; color: #3e2723;">🔦 Flashlight</span>
+        <label class="switch">
+            <input type="checkbox" id="torch-checkbox" onchange="toggleFlash(this.checked)">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <!-- Damage Barcode Manual Keyboard Mode Option -->
+    <div class="menu-btn-item" onclick="openKeyboardModal()">
+        <span>⌨️ Manual Keyboard Entry</span>
+        <span>❯</span>
+    </div>
+
+    <div class="menu-btn-item" onclick="openLogModal()">
+        <span>📋 Article & Bag Data Log</span>
+        <span>❯</span>
+    </div>
+
+    <div class="dev-info-box">
+        <strong style="display:block; margin-bottom: 3px;">Developer Info</strong>
+        <div>App Version: v2.7 (Direct Route Lock)</div>
+        <div>Y P Devmurari</div>
+        <div style="margin-top: 4px;">If any query please contact:</div>
+        <a href="mailto:yog.998811@gmail.com">yog.998811@gmail.com</a>
+    </div>
+</div>
+
+<!-- Modal Log Table -->
+<div class="modal" id="log-modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span>Processed Barcodes Log</span>
+            <span style="cursor: pointer; font-size: 16px;" onclick="closeLogModal()">✕</span>
+        </div>
+        <div class="modal-body">
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Item No.</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="log-table-body"></tbody>
+            </table>
+            <div id="no-log-msg" style="text-align: center; padding: 15px; color: #999; font-size: 11px;">No items scanned yet.</div>
+        </div>
+        <div style="padding: 8px; background: #fafafa; font-size: 11px; font-weight: 700; text-align: right;" id="total-count-label">
+            0 Items Processed
+        </div>
+    </div>
+</div>
+
+<!-- Modal Manual Keyboard Entry -->
+<div class="modal" id="keyboard-modal">
+    <div class="modal-box" style="padding: 12px;">
+        <div class="modal-header" style="background: none; padding: 0 0 8px 0; border-bottom: 1px solid #eee;">
+            <span>⌨️ Type Barcode No (Article / Bag)</span>
+            <span style="cursor: pointer; font-size: 18px;" onclick="closeKeyboardModal()">✕</span>
+        </div>
+        <div style="margin-top: 10px;">
+            <input type="text" id="manual-article-input" class="keyboard-input-box" placeholder="e.g. EE..IN / EBG.." maxlength="13">
+            <button class="btn-whatsapp-send" onclick="sendManualEntry()">
+                <span>➤</span> SEND TO PC
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Essential Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script>
+    // EXACT ORIGINAL UNTOUCHED ENGINE VARIABLES
+    let SECRET_CHANNEL = "";
+    let mqttClient = null;
+    let isMqttConnected = false;
+    let html5QrCode = null;
+    let isScanning = false;
+    let flashOn = false;
+    let currentMode = "AUTO"; 
+    let isLocked = false;
+    let highLevelMode = false;
+
+    let manualTriggerActive = false;
+    let isProcessing = false; 
+    let scannedLogs = [];
+
+    // PC ke BROKER_POOL ( 1 ), ( 2 ), ( 3 ), ( 4 ) ke sath EXACT 1-TO-1 MATCH
+    const brokers = [
+        { host: "test.mosquitto.org", port: 8081, path: "/mqtt", code: 1 },
+        { host: "broker.emqx.io", port: 443, path: "/mqtt", code: 2 },
+        { host: "broker.emqx.io", port: 8084, path: "/mqtt", code: 3 },
+        { host: "broker.hivemq.com", port: 8884, path: "/mqtt", code: 4 }
+    ];
+    let currentBrokerIndex = 0;
+
+    function openDrawer() {
+        if(isLocked) return;
+        document.getElementById('drawer-menu').classList.add('open');
+        document.getElementById('drawer-overlay').style.display = "block";
+    }
+    function closeDrawer() {
+        document.getElementById('drawer-menu').classList.remove('open');
+        document.getElementById('drawer-overlay').style.display = "none";
+    }
+
+    function openLogModal() {
+        closeDrawer();
+        document.getElementById('log-modal').style.display = "flex";
+    }
+    function closeLogModal() {
+        document.getElementById('log-modal').style.display = "none";
+    }
+
+    function openKeyboardModal() {
+        closeDrawer();
+        document.getElementById('keyboard-modal').style.display = "flex";
+        setTimeout(() => {
+            document.getElementById('manual-article-input').focus();
+        }, 300);
+    }
+    function closeKeyboardModal() {
+        document.getElementById('keyboard-modal').style.display = "none";
+    }
+
+    function sendManualEntry() {
+        const inputField = document.getElementById('manual-article-input');
+        const code = inputField.value.trim().toUpperCase();
+        if (!code) {
+            alert("Kripya barcode number likhein!");
+            return;
+        }
+        if (!isMqttConnected) {
+            alert("Pehle PIN daal kar PC connect karein!");
+            return;
+        }
+
+        sendArticleToPC(code);
+        addLogEntry(code);
+        playBeep();
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        document.getElementById('article-result').innerText = code;
+
+        inputField.value = "";
+        closeKeyboardModal();
+    }
+
+    function toggleScreenLock() {
+        isLocked = !isLocked;
+        const lockIcon = document.getElementById('lock-icon');
+        if(isLocked) {
+            lockIcon.innerText = "🔒";
+            lockIcon.classList.add('lock-active');
+            document.getElementById('ui-pin-box').classList.add('disabled-ui');
+        } else {
+            lockIcon.innerText = "🔓";
+            lockIcon.classList.remove('lock-active');
+            document.getElementById('ui-pin-box').classList.remove('disabled-ui');
+        }
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        const btnAuto = document.getElementById('seg-auto');
+        const btnManual = document.getElementById('seg-manual');
+        const scanNowBtn = document.getElementById('btn-manual-scan');
+
+        if(mode === 'AUTO') {
+            btnAuto.classList.add('active');
+            btnManual.classList.remove('active');
+            scanNowBtn.style.display = 'none';
+            manualTriggerActive = false;
+            isProcessing = false;
+        } else {
+            btnManual.classList.add('active');
+            btnAuto.classList.remove('active');
+            if(isScanning) scanNowBtn.style.display = 'flex';
+            manualTriggerActive = false;
+            isProcessing = false;
+            scanNowBtn.classList.remove('ready');
+            scanNowBtn.innerHTML = '<span style="font-size: 20px;">👆</span> SCAN NOW';
+        }
+        closeDrawer();
+    }
+
+    function toggleHighLevelScanning(enabled) {
+        highLevelMode = enabled;
+        const wrapper = document.getElementById('reader-wrapper');
+        if (enabled) {
+            wrapper.classList.add('high-level-active');
+        } else {
+            wrapper.classList.remove('high-level-active');
+        }
+
+        if (html5QrCode && isScanning) {
+            try {
+                html5QrCode.applyVideoConstraints({
+                    advanced: [{ exposureCompensation: enabled ? -1.2 : 0 }]
+                });
+            } catch(e) {}
+        }
+    }
+
+    // Direct Match Connection (Uses exact PC Route Number)
+    function manualConnect() {
+        const pin = document.getElementById('pc-pin').value.trim();
+        const routeVal = parseInt(document.getElementById('pc-route').value.trim()) || 1;
+
+        if (!pin) { alert("Please enter Secret PIN!"); return; }
+        SECRET_CHANNEL = "indiapost_scanner_pin_" + pin;
+
+        // Route index 1 to 4 ko array index 0 to 3 mein map karein
+        if (routeVal >= 1 && routeVal <= 4) {
+            currentBrokerIndex = routeVal - 1;
+        } else {
+            currentBrokerIndex = 0;
+        }
+
+        if (mqttClient) {
+            try { mqttClient.disconnect(); } catch(e){}
+        }
+        document.getElementById('counter-name').innerText = "...";
+        connectMQTT();
+    }
+
+    function updateCloudStatus(status) {
+        const text = document.getElementById('net-status-text');
+        const signal = document.getElementById('signal-icon');
+        const activeBroker = brokers[currentBrokerIndex];
+
+        if (status === 'YES') {
+            text.innerText = `Connected (${activeBroker.code})`;
+            text.style.color = "#00c853";
+            signal.classList.add('signal-connected');
+        } else if (status === 'NO') {
+            text.innerText = "Disconnected";
+            text.style.color = "#ff5252";
+            signal.classList.remove('signal-connected');
+        } else {
+            text.innerText = `Connecting (${activeBroker.code})...`;
+            text.style.color = "#f57f17";
+            signal.classList.remove('signal-connected');
+        }
+    }
+
+    function connectMQTT() {
+        updateCloudStatus("CHECKING");
+        const broker = brokers[currentBrokerIndex];
+        const clientId = "scanner_" + Math.random().toString(16).substr(2, 8);
+
+        mqttClient = new Paho.MQTT.Client(broker.host, broker.port, broker.path, clientId);
+
+        mqttClient.onConnectionLost = function () {
+            isMqttConnected = false;
+            updateCloudStatus("NO");
+        };
+
+        mqttClient.onMessageArrived = function (msg) {
+            if (msg.destinationName === `${SECRET_CHANNEL}_info`) {
+                document.getElementById('counter-name').innerText = msg.payloadString;
+            }
+        };
+
+        mqttClient.connect({
+            useSSL: true,
+            timeout: 4,
+            onSuccess: function () {
+                isMqttConnected = true;
+                updateCloudStatus("YES");
+                mqttClient.subscribe(`${SECRET_CHANNEL}_info`);
+            },
+            onFailure: function () {
+                isMqttConnected = false;
+                updateCloudStatus("NO");
+                alert(`Route (${broker.code}) se connect nahi ho paya! PC par check karein kaunsa number dikh raha hai.`);
+            }
+        });
+    }
+
+    let audioCtx = null;
+    function playBeep() {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(2800, now);
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(2.0, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        } catch(e) {}
+    }
+
+    // Article + Bag Universal Validation
+    function isValidIndiaPost(text) {
+        text = text.trim().toUpperCase();
+
+        // 1. Article Check: Ends with IN
+        if (/^[A-Z]{2}[0-9]{9}IN$/.test(text)) return true;
+        if (text.length >= 8 && !/^\d{1,6}$/.test(text) && text.endsWith("IN")) return true;
+
+        // 2. Bag / TMO Check: 3 Letters + 10 Digits
+        if (/^[A-Z]{3}[0-9]{10}$/.test(text)) return true;
+
+        return false;
+    }
+
+    function handleCameraToggle() {
+        if(isScanning) {
+            stopScanner();
+        } else {
+            startScanner();
+        }
+    }
+
+    function triggerManualScan() {
+        if (!isScanning) return;
+        manualTriggerActive = true;
+        const btn = document.getElementById('btn-manual-scan');
+        btn.classList.add('ready');
+        btn.innerHTML = '🎯 AIM & SCANNING...';
+        document.getElementById('article-result').innerText = "Looking for barcode...";
+    }
+
+    // Fast Camera Startup
+    async function startScanner() {
+        if (isScanning) return;
+        if (!isMqttConnected) { alert("Pehle PIN daal kar Submit dabayein aur Connected aane ka wait karein!"); return; }
+        playBeep();
+
+        const toggleBtn = document.getElementById('btn-camera-toggle');
+        toggleBtn.innerText = "⏹ Stop Scanning";
+        toggleBtn.classList.add('running');
+        document.getElementById('camera-badge').innerText = "Camera Active";
+        document.getElementById('article-result').innerText = "Camera Ready";
+
+        if (currentMode === "MANUAL") {
+            const btn = document.getElementById('btn-manual-scan');
+            btn.style.display = 'flex';
+            btn.classList.remove('ready');
+            btn.innerHTML = '<span style="font-size: 20px;">👆</span> SCAN NOW';
+        }
+
+        isScanning = true;
+        manualTriggerActive = false;
+        isProcessing = false;
+
+        try {
+            html5QrCode = new Html5Qrcode("reader", {
+                formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128 ],
+                verbose: false,
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true } 
+            });
+
+            const config = {
+                fps: 30,
+                qrbox: function(viewfinderWidth, viewfinderHeight) {
+                    return {
+                        width: Math.floor(viewfinderWidth * 0.95),
+                        height: Math.floor(viewfinderHeight * 0.70)
+                    };
+                },
+                videoConstraints: {
+                    facingMode: { ideal: "environment" },
+                    focusMode: { ideal: "continuous" },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            };
+
+            await html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText) => {
+                    if (!isScanning || isProcessing) return;
+
+                    if (currentMode === "MANUAL") {
+                        if (!manualTriggerActive) return;
+                    }
+
+                    const clean = decodedText.trim();
+                    if (isValidIndiaPost(clean)) {
+                        handleSuccess(clean);
+                    }
+                },
+                (err) => {} 
+            );
+
+            if (highLevelMode) {
+                toggleHighLevelScanning(true);
+            }
+
+        } catch (err) {
+            alert("Camera error: " + err);
+            stopScanner();
+        }
+    }
+
+    function handleSuccess(barcode) {
+        isProcessing = true;
+        playBeep();
+        if (navigator.vibrate) navigator.vibrate([200, 80, 200]);
+
+        let cleanCode = barcode.trim().toUpperCase();
+        if (cleanCode.length >= 13) {
+            cleanCode = cleanCode.substring(0, 13);
+        }
+
+        document.getElementById('article-result').innerText = cleanCode;
+
+        sendArticleToPC(cleanCode);
+        addLogEntry(cleanCode);
+
+        if (currentMode === "MANUAL") {
+            manualTriggerActive = false;
+            const btn = document.getElementById('btn-manual-scan');
+            btn.classList.remove('ready');
+            btn.innerHTML = '<span style="font-size: 20px;">👆</span> SCAN NOW';
+            setTimeout(() => { isProcessing = false; }, 400);
+        } else {
+            setTimeout(() => {
+                if (isScanning && currentMode === "AUTO") {
+                    document.getElementById('article-result').innerText = "Ready...";
+                }
+                isProcessing = false;
+            }, 1800);
+        }
+    }
+
+    // Direct Instant Transmission with QoS 1
+    function sendArticleToPC(code) {
+        if(mqttClient && isMqttConnected) {
+            const message = new Paho.MQTT.Message(code);
+            message.destinationName = SECRET_CHANNEL;
+            message.qos = 1;
+            mqttClient.send(message);
+        }
+    }
+
+    function addLogEntry(code) {
+        const d = new Date();
+        const timeStr = `${d.getDate().toString().padStart(2,'0')}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getFullYear()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+
+        scannedLogs.unshift({ time: timeStr, code: code });
+        renderLogs();
+    }
+
+    function renderLogs() {
+        const tbody = document.getElementById('log-table-body');
+        const noMsg = document.getElementById('no-log-msg');
+        const totalLabel = document.getElementById('total-count-label');
+
+        tbody.innerHTML = "";
+        if(scannedLogs.length === 0) {
+            noMsg.style.display = "block";
+        } else {
+            noMsg.style.display = "none";
+            scannedLogs.forEach((item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.time}</td>
+                    <td style="font-weight:700;">${item.code}</td>
+                    <td><button class="btn-resend" onclick="resendArticle('${item.code}')">Resend</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        totalLabel.innerText = `${scannedLogs.length} Items Processed`;
+    }
+
+    function resendArticle(code) {
+        sendArticleToPC(code);
+        playBeep();
+        alert(`Resent to PC: ${code}`);
+    }
+
+    async function stopScanner() {
+        isScanning = false;
+        manualTriggerActive = false;
+        isProcessing = false;
+
+        const toggleBtn = document.getElementById('btn-camera-toggle');
+        toggleBtn.innerText = "▶ Start Scanning";
+        toggleBtn.classList.remove('running');
+        document.getElementById('btn-manual-scan').style.display = 'none';
+        document.getElementById('camera-badge').innerText = "Camera Standby";
+        document.getElementById('article-result').innerText = "Camera Stopped";
+
+        if (html5QrCode) {
+            try {
+                await html5QrCode.stop();
+                html5QrCode.clear();
+            } catch(e){}
+        }
+    }
+
+    function toggleFlash(enabled) {
+        if (!html5QrCode || !isScanning) return;
+        try {
+            html5QrCode.applyVideoConstraints({ advanced: [{ torch: enabled }] });
+        } catch(e) {}
+    }
+</script>
+</body>
+</html>
