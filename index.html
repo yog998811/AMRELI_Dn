@@ -811,7 +811,7 @@
 
         try {
             html5QrCode = new Html5Qrcode("reader", {
-                formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128 ],
+                formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39 ],
                 verbose: false,
                 experimentalFeatures: { useBarCodeDetectorIfSupported: true } 
             });
