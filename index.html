@@ -147,7 +147,7 @@
             border: 1px dashed var(--post-red);
         }
 
-        /* Camera Box - Fast 290px Setup */
+        /* Camera Box */
         #reader-wrapper {
             position: relative;
             width: 100%;
@@ -177,7 +177,6 @@
         #reader video { width: 100% !important; height: 100% !important; object-fit: cover !important; transition: filter 0.2s ease; }
         #qr-shaded-region { border-color: rgba(0, 230, 118, 0.9) !important; }
 
-        /* High Level Scanning Visual Feedback */
         .high-level-active #reader video {
             filter: contrast(1.45) brightness(0.85) !important;
         }
@@ -192,20 +191,11 @@
             margin-top: 80px;
         }
 
-        /* 3D Tiranga Button */
         .tiranga-scan-btn {
             width: 100%;
             max-width: 360px;
             height: 50px;
-            background: linear-gradient(
-                180deg, 
-                #ff7722 0%, 
-                #ff9933 22%, 
-                #ffffff 48%, 
-                #ffffff 54%, 
-                #138808 80%, 
-                #0b6605 100%
-            );
+            background: linear-gradient(180deg, #ff7722 0%, #ff9933 22%, #ffffff 48%, #ffffff 54%, #138808 80%, #0b6605 100%);
             color: #111111;
             font-family: 'Arial Black', -apple-system, sans-serif;
             font-size: 18px;
@@ -221,11 +211,7 @@
             border-left: 2px solid #ffb380;
             border-right: 2px solid #084c03;
             border-bottom: 4px solid #063802;
-            box-shadow: 
-                0 4px 10px rgba(0, 0, 0, 0.35), 
-                inset 0 2px 2px rgba(255, 255, 255, 0.8),
-                inset 0 -2px 3px rgba(0, 0, 0, 0.4);
-            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.8), inset 0 -2px 3px rgba(0, 0, 0, 0.4);
             transition: all 0.1s ease-in-out;
             text-shadow: 0 1px 0 rgba(255,255,255,0.7);
         }
@@ -242,7 +228,6 @@
             to { filter: brightness(1.15) contrast(1.05); }
         }
 
-        /* Stop/Start Button */
         .btn-toggle-camera {
             width: 75%;
             max-width: 260px;
@@ -300,7 +285,7 @@
         .dev-info-box { background: #ffecb3; color: #3e2723; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.4; }
         .dev-info-box a { color: #00796b; font-weight: 700; text-decoration: underline; }
 
-        /* Modal Table & Keyboard Modal */
+        /* Modals */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 120; display: none; align-items: center; justify-content: center; padding: 14px; }
         .modal-box { background: #fff; width: 100%; max-width: 380px; border-radius: 10px; overflow: hidden; max-height: 80vh; display: flex; flex-direction: column; }
         .modal-header { background: #eceff1; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; }
@@ -310,7 +295,6 @@
         .log-table td { padding: 6px; border-bottom: 1px solid #eee; }
         .btn-resend { background: #00796b; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; cursor: pointer; }
 
-        /* WhatsApp Style Send Button & Keyboard Box */
         .keyboard-input-box {
             width: 100%;
             padding: 10px;
@@ -340,11 +324,6 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.2);
             width: 100%;
         }
-        .btn-whatsapp-send:active {
-            background: #1da851;
-            transform: scale(0.98);
-        }
-
         .disabled-ui { pointer-events: none !important; opacity: 0.45; }
     </style>
 </head>
@@ -399,7 +378,7 @@
         <!-- 1. Universal Result Bar -->
         <div class="result-bar" id="article-result">Barcode Result</div>
 
-        <!-- 2. Camera Card (Original Container Structure) -->
+        <!-- 2. Camera Card -->
         <div id="reader-wrapper">
             <div class="camera-title-badge" id="camera-badge">Camera Standby</div>
             <div id="reader"></div>
@@ -407,11 +386,9 @@
 
         <!-- 3. Action Controls -->
         <div class="action-container">
-            <!-- 3D Tiranga Button -->
             <button class="tiranga-scan-btn" id="btn-manual-scan" onclick="triggerManualScan()">
                 <span style="font-size: 20px;">👆</span> SCAN NOW
             </button>
-            <!-- Sleek Button -->
             <button class="btn-toggle-camera" id="btn-camera-toggle" onclick="handleCameraToggle()">
                 ▶ Start Scanning
             </button>
@@ -444,7 +421,6 @@
         </div>
     </div>
 
-    <!-- High Level Scanning Toggle -->
     <div class="switch-row" style="background: #e1f5fe; border: 1px solid #81d4fa;">
         <span style="font-size: 12px; font-weight: 700; color: #01579b;">⚡ High Level Scanning</span>
         <label class="switch">
@@ -461,7 +437,6 @@
         </label>
     </div>
 
-    <!-- Damage Barcode Manual Keyboard Mode Option -->
     <div class="menu-btn-item" onclick="openKeyboardModal()">
         <span>⌨️ Manual Keyboard Entry</span>
         <span>❯</span>
@@ -474,7 +449,7 @@
 
     <div class="dev-info-box">
         <strong style="display:block; margin-bottom: 3px;">Developer Info</strong>
-        <div>App Version: v2.7 (Direct Route Lock)</div>
+        <div>App Version: v2.8 (Ultra-Fast RMS Engine)</div>
         <div>Y P Devmurari</div>
         <div style="margin-top: 4px;">If any query please contact:</div>
         <a href="mailto:yog.998811@gmail.com">yog.998811@gmail.com</a>
@@ -523,18 +498,16 @@
     </div>
 </div>
 
-<!-- Essential Libraries -->
+<!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
-    // EXACT ORIGINAL UNTOUCHED ENGINE VARIABLES
     let SECRET_CHANNEL = "";
     let mqttClient = null;
     let isMqttConnected = false;
     let html5QrCode = null;
     let isScanning = false;
-    let flashOn = false;
     let currentMode = "AUTO"; 
     let isLocked = false;
     let highLevelMode = false;
@@ -543,11 +516,10 @@
     let isProcessing = false; 
     let scannedLogs = [];
 
-    // --- NAYE VARIABLES ADD KIYE HAIN ---
+    // CONFIDENCE FILTER VARIABLES
     let lastScannedCode = "";
     let scanConfidenceCount = 0;
 
-    // PC ke BROKER_POOL ( 1 ), ( 2 ), ( 3 ), ( 4 ) ke sath EXACT 1-TO-1 MATCH
     const brokers = [
         { host: "test.mosquitto.org", port: 8081, path: "/mqtt", code: 1 },
         { host: "broker.emqx.io", port: 443, path: "/mqtt", code: 2 },
@@ -577,9 +549,7 @@
     function openKeyboardModal() {
         closeDrawer();
         document.getElementById('keyboard-modal').style.display = "flex";
-        setTimeout(() => {
-            document.getElementById('manual-article-input').focus();
-        }, 300);
+        setTimeout(() => { document.getElementById('manual-article-input').focus(); }, 300);
     }
     function closeKeyboardModal() {
         document.getElementById('keyboard-modal').style.display = "none";
@@ -588,21 +558,14 @@
     function sendManualEntry() {
         const inputField = document.getElementById('manual-article-input');
         const code = inputField.value.trim().toUpperCase();
-        if (!code) {
-            alert("Kripya barcode number likhein!");
-            return;
-        }
-        if (!isMqttConnected) {
-            alert("Pehle PIN daal kar PC connect karein!");
-            return;
-        }
+        if (!code) { alert("Kripya barcode number likhein!"); return; }
+        if (!isMqttConnected) { alert("Pehle PIN daal kar PC connect karein!"); return; }
 
         sendArticleToPC(code);
         addLogEntry(code);
         playBeep();
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
         document.getElementById('article-result').innerText = code;
-
         inputField.value = "";
         closeKeyboardModal();
     }
@@ -648,11 +611,8 @@
     function toggleHighLevelScanning(enabled) {
         highLevelMode = enabled;
         const wrapper = document.getElementById('reader-wrapper');
-        if (enabled) {
-            wrapper.classList.add('high-level-active');
-        } else {
-            wrapper.classList.remove('high-level-active');
-        }
+        if (enabled) wrapper.classList.add('high-level-active');
+        else wrapper.classList.remove('high-level-active');
 
         if (html5QrCode && isScanning) {
             try {
@@ -663,7 +623,6 @@
         }
     }
 
-    // Direct Match Connection (Uses exact PC Route Number)
     function manualConnect() {
         const pin = document.getElementById('pc-pin').value.trim();
         const routeVal = parseInt(document.getElementById('pc-route').value.trim()) || 1;
@@ -671,12 +630,8 @@
         if (!pin) { alert("Please enter Secret PIN!"); return; }
         SECRET_CHANNEL = "indiapost_scanner_pin_" + pin;
 
-        // Route index 1 to 4 ko array index 0 to 3 mein map karein
-        if (routeVal >= 1 && routeVal <= 4) {
-            currentBrokerIndex = routeVal - 1;
-        } else {
-            currentBrokerIndex = 0;
-        }
+        if (routeVal >= 1 && routeVal <= 4) currentBrokerIndex = routeVal - 1;
+        else currentBrokerIndex = 0;
 
         if (mqttClient) {
             try { mqttClient.disconnect(); } catch(e){}
@@ -695,7 +650,7 @@
             text.style.color = "#00c853";
             signal.classList.add('signal-connected');
         } else if (status === 'NO') {
-            text.innerText = "Disconnected";
+            text.innerText = "Disconnected (Reconnecting...)";
             text.style.color = "#ff5252";
             signal.classList.remove('signal-connected');
         } else {
@@ -712,9 +667,13 @@
 
         mqttClient = new Paho.MQTT.Client(broker.host, broker.port, broker.path, clientId);
 
+        // SILENT DISCONNECT AUTO-RECOVERY
         mqttClient.onConnectionLost = function () {
             isMqttConnected = false;
             updateCloudStatus("NO");
+            setTimeout(() => {
+                if (SECRET_CHANNEL) connectMQTT();
+            }, 2000);
         };
 
         mqttClient.onMessageArrived = function (msg) {
@@ -725,7 +684,9 @@
 
         mqttClient.connect({
             useSSL: true,
-            timeout: 4,
+            timeout: 5,
+            keepAliveInterval: 20, // 20s Ping taaki mobile sleep na kare
+            cleanSession: true,
             onSuccess: function () {
                 isMqttConnected = true;
                 updateCloudStatus("YES");
@@ -734,7 +695,9 @@
             onFailure: function () {
                 isMqttConnected = false;
                 updateCloudStatus("NO");
-                alert(`Route (${broker.code}) se connect nahi ho paya! PC par check karein kaunsa number dikh raha hai.`);
+                setTimeout(() => {
+                    if (SECRET_CHANNEL) connectMQTT();
+                }, 3000);
             }
         });
     }
@@ -750,17 +713,15 @@
             osc.frequency.setValueAtTime(2800, now);
             const gain = audioCtx.createGain();
             gain.gain.setValueAtTime(2.0, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start(now);
-            osc.stop(now + 0.15);
+            osc.stop(now + 0.12);
         } catch(e) {}
     }
 
-    // ==============================================================
-    // 🎯 INDIA POST OFFICIAL CHECK-DIGIT & PREFIX VALIDATOR
-    // ==============================================================
+    // 🎯 INDIA POST OFFICIAL CHECK-DIGIT VALIDATOR (ZERO-ERROR)
     function verifyIndiaPostChecksum(code) {
         const digits = code.substring(2, 10); 
         const checkDigit = parseInt(code.charAt(10), 10);
@@ -783,12 +744,12 @@
     function isValidIndiaPost(text) {
         text = text.trim().toUpperCase();
 
-        // 1. Article Check: Koi bhi 2 letters + 9 Digits + IN 
+        // 1. Article: Exact 2 Letters + 9 Digits + "IN" + Mathematical Formula Check
         if (/^[A-Z]{2}[0-9]{9}IN$/.test(text)) {
-            return verifyIndiaPostChecksum(text); // Checksum formula apply hoga
+            return verifyIndiaPostChecksum(text);
         }
 
-        // 2. Bag / TMO Check: Strictly 3 Letters + Exact 10 Digits
+        // 2. Bag: Strictly 3 Letters + Exact 10 Digits
         if (/^[A-Z]{3}[0-9]{10}$/.test(text)) {
             return true;
         }
@@ -797,11 +758,8 @@
     }
 
     function handleCameraToggle() {
-        if(isScanning) {
-            stopScanner();
-        } else {
-            startScanner();
-        }
+        if(isScanning) stopScanner();
+        else startScanner();
     }
 
     function triggerManualScan() {
@@ -813,11 +771,9 @@
         document.getElementById('article-result').innerText = "Looking for barcode...";
     }
 
-    // Fast Camera Startup
     async function startScanner() {
         if (isScanning) return;
         if (!isMqttConnected) { alert("Pehle PIN daal kar Submit dabayein aur Connected aane ka wait karein!"); return; }
-        playBeep();
 
         const toggleBtn = document.getElementById('btn-camera-toggle');
         toggleBtn.innerText = "⏹ Stop Scanning";
@@ -835,15 +791,13 @@
         isScanning = true;
         manualTriggerActive = false;
         isProcessing = false;
-        
-        // --- NAYA RESET LOGIC ---
         lastScannedCode = ""; 
         scanConfidenceCount = 0;
 
         try {
+            // CPU load half: Sirf 128 aur 39 active hain
             html5QrCode = new Html5Qrcode("reader", {
-                // --- NAYE FORMATS ADD KIYE HAIN ---
-                formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.CODE_93, Html5QrcodeSupportedFormats.ITF ],
+                formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39 ],
                 verbose: false,
                 experimentalFeatures: { useBarCodeDetectorIfSupported: true } 
             });
@@ -874,11 +828,10 @@
                         if (!manualTriggerActive) return;
                     }
 
-                    // --- NAYA CONFIDENCE DOUBLE CHECK LOGIC ---
                     const clean = decodedText.trim().toUpperCase();
                     
                     if (isValidIndiaPost(clean)) {
-                        // 🔒 HARDWARE SCANNER WALA "CONFIDENCE FILTER"
+                        // Double Frame Confidence Filter
                         if (clean === lastScannedCode) {
                             scanConfidenceCount++;
                         } else {
@@ -886,7 +839,6 @@
                             scanConfidenceCount = 1;
                         }
 
-                        // Jab lagatar 2 frames mein exact same result aaye, tabhi aage bhejo
                         if (scanConfidenceCount >= 2) {
                             handleSuccess(clean);
                             lastScannedCode = "";
@@ -897,9 +849,7 @@
                 (err) => {} 
             );
 
-            if (highLevelMode) {
-                toggleHighLevelScanning(true);
-            }
+            if (highLevelMode) toggleHighLevelScanning(true);
 
         } catch (err) {
             alert("Camera error: " + err);
@@ -909,43 +859,57 @@
 
     function handleSuccess(barcode) {
         isProcessing = true;
-        playBeep();
-        if (navigator.vibrate) navigator.vibrate([200, 80, 200]);
 
         let cleanCode = barcode.trim().toUpperCase();
-        if (cleanCode.length >= 13) {
-            cleanCode = cleanCode.substring(0, 13);
+        if (cleanCode.length >= 13) cleanCode = cleanCode.substring(0, 13);
+
+        // Pehle PC par turant data fire hoga (0ms)
+        const sent = sendArticleToPC(cleanCode);
+
+        // PC ko bhejne ke baad hi beep aur haptic signal aayega
+        if (sent) {
+            playBeep();
+            if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
+            document.getElementById('article-result').innerText = cleanCode;
+            addLogEntry(cleanCode);
+        } else {
+            // Agar network gaya hua hai toh beep bajane ke bajaye warn karega
+            document.getElementById('article-result').innerText = "Network dropped! Reconnecting...";
         }
-
-        document.getElementById('article-result').innerText = cleanCode;
-
-        sendArticleToPC(cleanCode);
-        addLogEntry(cleanCode);
 
         if (currentMode === "MANUAL") {
             manualTriggerActive = false;
             const btn = document.getElementById('btn-manual-scan');
             btn.classList.remove('ready');
             btn.innerHTML = '<span style="font-size: 20px;">👆</span> SCAN NOW';
-            setTimeout(() => { isProcessing = false; }, 400);
+            setTimeout(() => { isProcessing = false; }, 300);
         } else {
+            // Speed Boost: 900ms se ghatakar 450ms (Double speed)
             setTimeout(() => {
                 if (isScanning && currentMode === "AUTO") {
                     document.getElementById('article-result').innerText = "Ready...";
                 }
                 isProcessing = false;
-            }, 900);
+            }, 450);
         }
     }
 
-    // Direct Instant Transmission with QoS 1
+    // Instant Zero-Latency Transmission (QoS 0)
     function sendArticleToPC(code) {
         if(mqttClient && isMqttConnected) {
-            const message = new Paho.MQTT.Message(code);
-            message.destinationName = SECRET_CHANNEL;
-            message.qos = 1;
-            mqttClient.send(message);
+            try {
+                const message = new Paho.MQTT.Message(code);
+                message.destinationName = SECRET_CHANNEL;
+                message.qos = 0; // QoS 0 = Zero queue, direct instant push
+                mqttClient.send(message);
+                return true;
+            } catch(e) {
+                isMqttConnected = false;
+                updateCloudStatus("NO");
+                return false;
+            }
         }
+        return false;
     }
 
     function addLogEntry(code) {
@@ -980,9 +944,12 @@
     }
 
     function resendArticle(code) {
-        sendArticleToPC(code);
-        playBeep();
-        alert(`Resent to PC: ${code}`);
+        if (sendArticleToPC(code)) {
+            playBeep();
+            alert(`Resent to PC: ${code}`);
+        } else {
+            alert("PC connect nahi hai!");
+        }
     }
 
     async function stopScanner() {
