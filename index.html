@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Amreli RMS Wireless Scanner</title>
@@ -544,6 +543,10 @@
     let isProcessing = false; 
     let scannedLogs = [];
 
+    // --- NAYE VARIABLES ADD KIYE HAIN ---
+    let lastScannedCode = "";
+    let scanConfidenceCount = 0;
+
     // PC ke BROKER_POOL ( 1 ), ( 2 ), ( 3 ), ( 4 ) ke sath EXACT 1-TO-1 MATCH
     const brokers = [
         { host: "test.mosquitto.org", port: 8081, path: "/mqtt", code: 1 },
@@ -755,16 +758,40 @@
         } catch(e) {}
     }
 
-    // Article + Bag Universal Validation
+    // ==============================================================
+    // 🎯 INDIA POST OFFICIAL CHECK-DIGIT & PREFIX VALIDATOR
+    // ==============================================================
+    function verifyIndiaPostChecksum(code) {
+        const digits = code.substring(2, 10); 
+        const checkDigit = parseInt(code.charAt(10), 10);
+        const weights = [8, 6, 4, 2, 3, 5, 9, 7];
+
+        let sum = 0;
+        for (let i = 0; i < 8; i++) {
+            sum += parseInt(digits.charAt(i), 10) * weights[i];
+        }
+
+        let remainder = sum % 11;
+        let expected = 11 - remainder;
+
+        if (expected === 10) expected = 0;
+        else if (expected === 11) expected = 5;
+
+        return checkDigit === expected;
+    }
+
     function isValidIndiaPost(text) {
         text = text.trim().toUpperCase();
 
-        // 1. Article Check: Ends with IN
-        if (/^[A-Z]{2}[0-9]{9}IN$/.test(text)) return true;
-        if (text.length >= 8 && !/^\d{1,6}$/.test(text) && text.endsWith("IN")) return true;
+        // 1. Article Check: Koi bhi 2 letters + 9 Digits + IN 
+        if (/^[A-Z]{2}[0-9]{9}IN$/.test(text)) {
+            return verifyIndiaPostChecksum(text); // Checksum formula apply hoga
+        }
 
-        // 2. Bag / TMO Check: 3 Letters + 10 Digits
-        if (/^[A-Z]{3}[0-9]{10}$/.test(text)) return true;
+        // 2. Bag / TMO Check: Strictly 3 Letters + Exact 10 Digits
+        if (/^[A-Z]{3}[0-9]{10}$/.test(text)) {
+            return true;
+        }
 
         return false;
     }
@@ -808,10 +835,15 @@
         isScanning = true;
         manualTriggerActive = false;
         isProcessing = false;
+        
+        // --- NAYA RESET LOGIC ---
+        lastScannedCode = ""; 
+        scanConfidenceCount = 0;
 
         try {
             html5QrCode = new Html5Qrcode("reader", {
-                formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39 ],
+                // --- NAYE FORMATS ADD KIYE HAIN ---
+                formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39, Html5QrcodeSupportedFormats.CODE_93, Html5QrcodeSupportedFormats.ITF ],
                 verbose: false,
                 experimentalFeatures: { useBarCodeDetectorIfSupported: true } 
             });
@@ -842,9 +874,24 @@
                         if (!manualTriggerActive) return;
                     }
 
-                    const clean = decodedText.trim();
+                    // --- NAYA CONFIDENCE DOUBLE CHECK LOGIC ---
+                    const clean = decodedText.trim().toUpperCase();
+                    
                     if (isValidIndiaPost(clean)) {
-                        handleSuccess(clean);
+                        // 🔒 HARDWARE SCANNER WALA "CONFIDENCE FILTER"
+                        if (clean === lastScannedCode) {
+                            scanConfidenceCount++;
+                        } else {
+                            lastScannedCode = clean;
+                            scanConfidenceCount = 1;
+                        }
+
+                        // Jab lagatar 2 frames mein exact same result aaye, tabhi aage bhejo
+                        if (scanConfidenceCount >= 2) {
+                            handleSuccess(clean);
+                            lastScannedCode = "";
+                            scanConfidenceCount = 0;
+                        }
                     }
                 },
                 (err) => {} 
@@ -887,7 +934,7 @@
                     document.getElementById('article-result').innerText = "Ready...";
                 }
                 isProcessing = false;
-            }, 1900);
+            }, 900);
         }
     }
 
